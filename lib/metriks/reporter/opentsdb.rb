@@ -2,7 +2,7 @@ require 'metriks/time_tracker'
 require 'net/https'
 
 module Metriks::Reporter
-  class LibratoMetrics
+  class Opentsdb
     attr_accessor :prefix, :source
 
     def initialize(email, token, options = {})

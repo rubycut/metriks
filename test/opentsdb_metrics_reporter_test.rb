@@ -1,13 +1,13 @@
 require 'test_helper'
 require 'thread_error_handling_tests'
 
-require 'metriks/reporter/librato_metrics'
+require 'metriks/reporter/opentsdb'
 
-class LibratoMetricsReporterTest < Test::Unit::TestCase
+class OpentsdbReporterTest < Test::Unit::TestCase
   include ThreadErrorHandlingTests
 
   def build_reporter(options={})
-    Metriks::Reporter::LibratoMetrics.new('user', 'password', { :registry => @registry }.merge(options))
+    Metriks::Reporter::Opentsdb.new('user', 'password', { :registry => @registry }.merge(options))
   end
 
   def setup
