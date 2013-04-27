@@ -7,7 +7,7 @@ class OpentsdbReporterTest < Test::Unit::TestCase
   include ThreadErrorHandlingTests
 
   def build_reporter(options={})
-    Metriks::Reporter::Opentsdb.new('user', 'password', { :registry => @registry }.merge(options))
+    Metriks::Reporter::Opentsdb.new('localhost', 4242, { :registry => @registry }.merge(options))
   end
 
   def setup
@@ -27,9 +27,13 @@ class OpentsdbReporterTest < Test::Unit::TestCase
     @registry.histogram('histogram.testing').update(1.5)
     @registry.utilization_timer('utilization_timer.testing').update(1.5)
     @registry.gauge('gauge.testing') { 123 }
+    tcp_socket = mock
+    @reporter.stubs(:connection).returns(tcp_socket)
+    tcp_socket.expects(:puts).at_least_once
+    tcp_socket.expects(:ready?).returns(false)
+    tcp_socket.expects(:close)
 
-    @reporter.expects(:submit)
-
+    @reporter.connection.expects(:puts).with("put counter.testing.count #{Time.now.to_i} 1 host=desktopstats")
     @reporter.write
   end
 end

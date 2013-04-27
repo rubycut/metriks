@@ -1,28 +1,29 @@
-require 'metriks/time_tracker'
 require 'net/https'
+require 'socket'
+require 'io/wait'
 
 module Metriks::Reporter
   class Opentsdb
     attr_accessor :prefix, :source
 
-    def initialize(email, token, options = {})
-      @email = email
-      @token = token
-
+    def initialize(host, port, options = {})
+      @host = host
+      @port = port
       @prefix = options[:prefix]
       @source = options[:source]
-
+      @interval = options[:interval] || 60
       @registry  = options[:registry] || Metriks::Registry.default
-      @time_tracker = Metriks::TimeTracker.new(options[:interval] || 60)
       @on_error  = options[:on_error] || proc { |ex| }
-    end
 
+    end
+    def connection
+      @connection ||= TCPSocket.new(@host, @port)
+    end
     def start
       @thread ||= Thread.new do
         loop do
-          @time_tracker.sleep
-
           Thread.new do
+            sleep @interval
             begin
               write
             rescue Exception => ex
@@ -48,20 +49,20 @@ module Metriks::Reporter
       @registry.each do |name, metric|
         gauges << case metric
         when Metriks::Meter
-          prepare_metric name, metric, [
+          send_metric name, metric, [
             :count, :one_minute_rate, :five_minute_rate,
             :fifteen_minute_rate, :mean_rate
           ]
         when Metriks::Counter
-          prepare_metric name, metric, [
+          send_metric name, metric, [
             :count
           ]
         when Metriks::Gauge
-          prepare_metric name, metric, [
+          send_metric name, metric, [
             :value
           ]
         when Metriks::UtilizationTimer
-          prepare_metric name, metric, [
+          send_metric name, metric, [
             :count, :one_minute_rate, :five_minute_rate,
             :fifteen_minute_rate, :mean_rate,
             :min, :max, :mean, :stddev,
@@ -71,7 +72,7 @@ module Metriks::Reporter
             :median, :get_95th_percentile
           ]
         when Metriks::Timer
-          prepare_metric name, metric, [
+          send_metric name, metric, [
             :count, :one_minute_rate, :five_minute_rate,
             :fifteen_minute_rate, :mean_rate,
             :min, :max, :mean, :stddev
@@ -79,107 +80,29 @@ module Metriks::Reporter
             :median, :get_95th_percentile
           ]
         when Metriks::Histogram
-          prepare_metric name, metric, [
+          send_metric name, metric, [
             :count, :min, :max, :mean, :stddev
           ], [
             :median, :get_95th_percentile
           ]
         end
       end
+      close_connection
 
-      gauges.flatten!
-
-      unless gauges.empty?
-        submit(form_data(gauges.flatten))
-      end
     end
-
-    def submit(data)
-      url = URI.parse('https://metrics-api.librato.com/v1/metrics')
-      req = Net::HTTP::Post.new(url.path)
-      req.basic_auth(@email, @token)
-      req.set_form_data(data)
-
-      http = Net::HTTP.new(url.host, url.port)
-      http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-      http.use_ssl = true
-      store = OpenSSL::X509::Store.new
-      store.set_default_paths
-      http.cert_store = store
-
-      case res = http.start { |http| http.request(req) }
-      when Net::HTTPSuccess, Net::HTTPRedirection
-        # OK
+    def close_connection
+      if connection.ready?
+       puts "Errors"
+       #line = connection.gets # Read lines from socket
       else
-        res.error!
+      puts "everything ok"
       end
+      connection.close
     end
-
-    def form_data(metrics)
-      data = {}
-
-      gauges = metrics.select { |m| m[:type] == "gauge" }
-
-      gauges.each_with_index do |gauge, idx|
-        gauge.each do |key, value|
-          if value
-            data["gauges[#{idx}][#{key}]"] = value.to_s
-          end
-        end
+    def send_metric(base_name, metric, keys, snapshot_keys = [])
+      keys.each do |key|
+        connection.puts("put #{base_name}.#{key} #{Time.now.to_i} #{metric.send(key)} host=desktopstats")
       end
-
-      counters = metrics.select { |m| m[:type] == "counter" }
-
-      counters.each_with_index do |counter, idx|
-        counter.each do |key, value|
-          if value
-            data["counters[#{idx}][#{key}]"] = value.to_s
-          end
-        end
-      end
-
-      data
-    end
-
-    def prepare_metric(base_name, metric, keys, snapshot_keys = [])
-      results = []
-      time = @time_tracker.now_floored
-
-      base_name = base_name.to_s.gsub(/ +/, '_')
-      if @prefix
-        base_name = "#{@prefix}.#{base_name}"
-      end
-
-      keys.flatten.each do |key|
-        name = key.to_s.gsub(/^get_/, '')
-        value = metric.send(key)
-
-        results << {
-          :type => name.to_s == "count" ? "counter" : "gauge",
-          :name => "#{base_name}.#{name}",
-          :source => @source,
-          :measure_time => time,
-          :value => value
-        }
-      end
-
-      unless snapshot_keys.empty?
-        snapshot = metric.snapshot
-        snapshot_keys.flatten.each do |key|
-          name = key.to_s.gsub(/^get_/, '')
-          value = snapshot.send(key)
-
-          results << {
-            :type => name.to_s == "count" ? "counter" : "gauge",
-            :name => "#{base_name}.#{name}",
-            :source => @source,
-            :measure_time => time,
-            :value => value
-          }
-        end
-      end
-
-      results
     end
   end
 end
