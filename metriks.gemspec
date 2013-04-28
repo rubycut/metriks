@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   ## If your rubyforge_project name is different, then edit it and comment out
   ## the sub! line in the Rakefile
   s.name              = 'rubycut-metriks'
-  s.version           = '0.9.9.5'
+  s.version           = '0.9.9.6'
   s.date              = '2013-04-28'
 
   ## Make sure your summary is short. The description may be as long
@@ -71,6 +71,7 @@ Gem::Specification.new do |s|
     lib/metriks/reporter/logger.rb
     lib/metriks/reporter/proc_title.rb
     lib/metriks/reporter/riemann.rb
+    lib/metriks/reporter/opentsdb.rb
     lib/metriks/simple_moving_average.rb
     lib/metriks/snapshot.rb
     lib/metriks/time_tracker.rb
@@ -92,6 +93,7 @@ Gem::Specification.new do |s|
     test/thread_error_handling_tests.rb
     test/timer_test.rb
     test/utilization_timer_test.rb
+    test/opentsdb_metrics_reporter_test.rb
   ]
   # = MANIFEST =
 
