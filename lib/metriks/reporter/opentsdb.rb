@@ -16,14 +16,17 @@ module Metriks::Reporter
       @on_error  = options[:on_error] || proc { |ex| }
 
     end
+    def open_connection
+      @connection = TCPSocket.new(@host, @port)
+    end
     def connection
-      @connection ||= TCPSocket.new(@host, @port)
+      @connection
     end
     def start
       @thread ||= Thread.new do
         loop do
+          sleep @interval
           Thread.new do
-            sleep @interval
             begin
               write
             rescue Exception => ex
@@ -45,9 +48,9 @@ module Metriks::Reporter
     end
 
     def write
-      gauges = []
+      open_connection
       @registry.each do |name, metric|
-        gauges << case metric
+        case metric
         when Metriks::Meter
           send_metric name, metric, [
             :count, :one_minute_rate, :five_minute_rate,

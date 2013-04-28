@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   ## Leave these as is they will be modified for you by the rake gemspec task.
   ## If your rubyforge_project name is different, then edit it and comment out
   ## the sub! line in the Rakefile
-  s.name              = 'metriks'
+  s.name              = 'rubycut-metriks'
   s.version           = '0.9.9.4'
   s.date              = '2013-02-22'
 
