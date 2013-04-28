@@ -92,16 +92,14 @@ module Metriks::Reporter
     end
     def close_connection
       if connection.ready?
-       puts "Errors"
-       #line = connection.gets # Read lines from socket
-      else
-      puts "everything ok"
+       raise "Error while pushing data: #{connection.gets}"
       end
       connection.close
     end
-    def send_metric(base_name, metric, keys, snapshot_keys = [])
+    def send_metric(compound_name, metric, keys, snapshot_keys = [])
+      name, tags = compound_name.split("#")
       keys.each do |key|
-        connection.puts("put #{base_name}.#{key} #{Time.now.to_i} #{metric.send(key)} host=desktopstats")
+        connection.puts("put #{name}.#{key} #{Time.now.to_i} #{metric.send(key)} #{tags}")
       end
     end
   end
