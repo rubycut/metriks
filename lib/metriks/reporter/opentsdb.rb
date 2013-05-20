@@ -60,6 +60,7 @@ module Metriks::Reporter
           send_metric name, metric, [
             :count
           ]
+          metric.clear if metric.reset_on_submit
         when Metriks::Gauge
           send_metric name, metric, [
             :value
@@ -102,6 +103,7 @@ module Metriks::Reporter
     def send_metric(compound_name, metric, keys, snapshot_keys = [])
       name, tags = compound_name.split("#")
       keys.each do |key|
+        puts "put #{name}.#{key} #{Time.now.to_i} #{metric.send(key)} #{tags}"
         connection.puts("put #{name}.#{key} #{Time.now.to_i} #{metric.send(key)} #{tags}")
       end
     end
