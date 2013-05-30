@@ -34,7 +34,8 @@ class OpentsdbReporterTest < Test::Unit::TestCase
     tcp_socket.expects(:ready?).returns(false)
     tcp_socket.expects(:close)
 
-    @reporter.connection.expects(:puts).with("put counter.testing.count #{Time.now.to_i} 1 tag=test")
+    @reporter.connection.expects(:puts).with("put counter.testing #{Time.now.to_i} 1 tag=test")
+    @reporter.connection.expects(:puts).with("put gauge.testing #{Time.now.to_i} 123 tag=test")
     @reporter.write
   end
   def test_reset
