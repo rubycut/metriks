@@ -12,9 +12,9 @@ Gem::Specification.new do |s|
   ## Leave these as is they will be modified for you by the rake gemspec task.
   ## If your rubyforge_project name is different, then edit it and comment out
   ## the sub! line in the Rakefile
-  s.name              = 'metriks'
-  s.version           = '0.9.9.4'
-  s.date              = '2013-02-22'
+  s.name              = 'rubycut-metriks'
+  s.version           = '0.9.9.8'
+  s.date              = '2013-05-30'
 
   ## Make sure your summary is short. The description may be as long
   ## as you like.
@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   ## a custom homepage, consider using your GitHub URL or the like.
   s.authors  = ["Eric Lindvall"]
   s.email    = 'eric@sevenscale.com'
-  s.homepage = 'https://github.com/eric/metriks'
+  s.homepage = 'https://github.com/rubycut/metriks'
 
   ## This gets added to the $LOAD_PATH so that 'lib/NAME.rb' can be required as
   ## require 'NAME.rb' or'/lib/NAME/file.rb' can be as require 'NAME/file.rb'
@@ -61,6 +61,7 @@ Gem::Specification.new do |s|
     lib/metriks.rb
     lib/metriks/counter.rb
     lib/metriks/ewma.rb
+    lib/metriks/gauge.rb
     lib/metriks/exponentially_decaying_sample.rb
     lib/metriks/histogram.rb
     lib/metriks/meter.rb
@@ -70,6 +71,7 @@ Gem::Specification.new do |s|
     lib/metriks/reporter/logger.rb
     lib/metriks/reporter/proc_title.rb
     lib/metriks/reporter/riemann.rb
+    lib/metriks/reporter/opentsdb.rb
     lib/metriks/simple_moving_average.rb
     lib/metriks/snapshot.rb
     lib/metriks/time_tracker.rb
@@ -91,6 +93,7 @@ Gem::Specification.new do |s|
     test/thread_error_handling_tests.rb
     test/timer_test.rb
     test/utilization_timer_test.rb
+    test/opentsdb_metrics_reporter_test.rb
   ]
   # = MANIFEST =
 
