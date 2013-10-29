@@ -6,7 +6,7 @@ class CassandraReporterTest < Test::Unit::TestCase
   include ThreadErrorHandlingTests
 
   def build_reporter(options={})
-    Metriks::Reporter::Cassandra.new('localhost', 4242, { :registry => @registry, :db => "metrics", :source => "server", :table => "table" }.merge(options))
+    Metriks::Reporter::Cassandra.new('localhost', { :registry => @registry, :db => "metrics", :source => "server", :table => "table" }.merge(options))
   end
 
   def setup
