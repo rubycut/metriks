@@ -42,6 +42,7 @@ Gem::Specification.new do |s|
   s.add_dependency('atomic', ["~> 1.0"])
   s.add_dependency('hitimes', [ "~> 1.1"])
   s.add_dependency('avl_tree', [ "~> 1.1.2" ])
+  s.add_dependency('cql-rb', [ ">= 1.0.5" ])
 
   ## List your development dependencies here. Development dependencies are
   ## those that are only needed during development
@@ -72,6 +73,7 @@ Gem::Specification.new do |s|
     lib/metriks/reporter/proc_title.rb
     lib/metriks/reporter/riemann.rb
     lib/metriks/reporter/opentsdb.rb
+    lib/metriks/reporter/cassandra.rb
     lib/metriks/simple_moving_average.rb
     lib/metriks/snapshot.rb
     lib/metriks/time_tracker.rb
