@@ -7,9 +7,9 @@ module Metriks::Reporter
   class Cassandra
     attr_accessor :prefix, :source
 
-    def initialize(host, port, options = {})
+    def initialize(host, options = {})
       @host = host
-      @port = port
+      @port = options[:port] || "9042"
       @prefix = options[:prefix]
       @source = options[:source]
       @database = options[:database]
@@ -20,7 +20,7 @@ module Metriks::Reporter
 
     end
     def open_connection
-      @connection = Cql::Client.connect(host: @host)
+      @connection = Cql::Client.connect(host: @host, port: @port)
       @connection.use(@database)
       @connection
     end
