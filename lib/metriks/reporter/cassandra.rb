@@ -1,23 +1,28 @@
 require 'net/https'
 require 'socket'
 require 'io/wait'
+require 'cql'
 
 module Metriks::Reporter
-  class Opentsdb
+  class Cassandra
     attr_accessor :prefix, :source
 
-    def initialize(host, port, options = {})
+    def initialize(host, options = {})
       @host = host
-      @port = port
+      @port = options[:port] || "9042"
       @prefix = options[:prefix]
       @source = options[:source]
+      @database = options[:database]
+      @table = options[:table]
       @interval = options[:interval] || 60
       @registry  = options[:registry] || Metriks::Registry.default
       @on_error  = options[:on_error] || proc { |ex| }
 
     end
     def open_connection
-      @connection = TCPSocket.new(@host, @port)
+      @connection = Cql::Client.connect(host: @host, port: @port)
+      @connection.use(@database)
+      @connection
     end
     def connection
       @connection
@@ -95,21 +100,13 @@ module Metriks::Reporter
 
     end
     def close_connection
-      if connection.ready?
-       raise "Error while pushing data: #{connection.gets}"
-      end
       connection.close
     end
     def send_metric(compound_name, metric, keys, snapshot_keys = [])
-      name, tags = compound_name.split("#")
-      if keys.size == 1
-        puts "put #{name} #{Time.now.to_i} #{metric.send(keys.first)} #{tags}"
-        connection.puts("put #{name} #{Time.now.to_i} #{metric.send(keys.first)} #{tags}")
-      else
-        keys.each do |key|
-          #puts "put #{name}.#{key} #{Time.now.to_i} #{metric.send(key)} #{tags}"
-          connection.puts("put #{name}.#{key} #{Time.now.to_i} #{metric.send(key)} #{tags}")
-        end
+      keys.each do |key|
+        command = "INSERT INTO #{@table} (server,metric,time,v) VALUES ('#{@source}','#{compound_name}','#{Time.now.utc.strftime("%Y-%m-%d %H:%M:%S+0000")}',#{metric.send(key)})"
+        puts command
+        connection.execute command
       end
     end
   end

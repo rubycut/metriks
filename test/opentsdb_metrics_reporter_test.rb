@@ -1,6 +1,5 @@
 require 'test_helper'
 require 'thread_error_handling_tests'
-require 'ruby-debug'
 require 'metriks/reporter/opentsdb'
 
 class OpentsdbReporterTest < Test::Unit::TestCase

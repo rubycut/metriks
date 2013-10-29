@@ -13,8 +13,8 @@ Gem::Specification.new do |s|
   ## If your rubyforge_project name is different, then edit it and comment out
   ## the sub! line in the Rakefile
   s.name              = 'rubycut-metriks'
-  s.version           = '0.9.9.8'
-  s.date              = '2013-05-30'
+  s.version           = '0.9.9.9'
+  s.date              = '2013-10-29'
 
   ## Make sure your summary is short. The description may be as long
   ## as you like.
@@ -42,6 +42,7 @@ Gem::Specification.new do |s|
   s.add_dependency('atomic', ["~> 1.0"])
   s.add_dependency('hitimes', [ "~> 1.1"])
   s.add_dependency('avl_tree', [ "~> 1.1.2" ])
+  s.add_dependency('cql-rb', [ ">= 1.0.5" ])
 
   ## List your development dependencies here. Development dependencies are
   ## those that are only needed during development
@@ -72,6 +73,7 @@ Gem::Specification.new do |s|
     lib/metriks/reporter/proc_title.rb
     lib/metriks/reporter/riemann.rb
     lib/metriks/reporter/opentsdb.rb
+    lib/metriks/reporter/cassandra.rb
     lib/metriks/simple_moving_average.rb
     lib/metriks/snapshot.rb
     lib/metriks/time_tracker.rb
