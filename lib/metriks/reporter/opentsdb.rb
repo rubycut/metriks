@@ -107,7 +107,7 @@ module Metriks::Reporter
         connection.puts("put #{name} #{Time.now.to_i} #{metric.send(keys.first)} #{tags}")
       else
         keys.each do |key|
-          puts "put #{name}.#{key} #{Time.now.to_i} #{metric.send(key)} #{tags}"
+          #puts "put #{name}.#{key} #{Time.now.to_i} #{metric.send(key)} #{tags}"
           connection.puts("put #{name}.#{key} #{Time.now.to_i} #{metric.send(key)} #{tags}")
         end
       end
