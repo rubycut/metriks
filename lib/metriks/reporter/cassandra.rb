@@ -105,7 +105,7 @@ module Metriks::Reporter
     def send_metric(compound_name, metric, keys, snapshot_keys = [])
       keys.each do |key|
         command = "INSERT INTO #{@table} (server,metric,time,v) VALUES ('#{@source}','#{compound_name}','#{Time.now.utc.strftime("%Y-%m-%d %H:%M:%S+0000")}',#{metric.send(key)})"
-        puts command
+        # puts command
         connection.execute command
       end
     end

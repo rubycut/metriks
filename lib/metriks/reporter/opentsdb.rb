@@ -103,7 +103,7 @@ module Metriks::Reporter
     def send_metric(compound_name, metric, keys, snapshot_keys = [])
       name, tags = compound_name.split("#")
       if keys.size == 1
-        puts "put #{name} #{Time.now.to_i} #{metric.send(keys.first)} #{tags}"
+        # puts "put #{name} #{Time.now.to_i} #{metric.send(keys.first)} #{tags}"
         connection.puts("put #{name} #{Time.now.to_i} #{metric.send(keys.first)} #{tags}")
       else
         keys.each do |key|
