@@ -23,6 +23,8 @@ module Metriks::Reporter
       @connection = Cql::Client.connect(host: @host, port: @port)
       @connection.use(@database)
       @connection
+      @write_statement||= @connection.prepare("INSERT INTO #{@table}(server,metric, time, v) VALUES
+          (?, ?, ?, ?) USING TTL 1209600") # two weeks
     end
     def connection
       @connection
@@ -104,10 +106,20 @@ module Metriks::Reporter
     end
     def send_metric(compound_name, metric, keys, snapshot_keys = [])
       keys.each do |key|
-        command = "INSERT INTO #{@table} (server,metric,time,v) VALUES ('#{@source}','#{compound_name}','#{Time.now.utc.strftime("%Y-%m-%d %H:%M:%S+0000")}',#{metric.send(key)})"
-        # puts command
+        execute_preparated_statement ['#{@source}','#{compound_name}','#{Time.now.to_i}',#{metric.send(key)})"
         connection.execute command
       end
     end
+    def execute_prepared_statement array
+      log.debug "I plan to update cassandra metrics with:\n#{array.inspect}"
+      future = write_statement.async.execute(*array)
+      future.on_failure do |error|
+        log.error "Writing prepared statement error: '#{error.message}' while executing: #{error.cql}"
+      end
+    end
+    def write_statement
+      @write_statement
+    end
+
   end
 end
