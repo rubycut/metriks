@@ -20,10 +20,10 @@ module Metriks::Reporter
 
     end
     def open_connection
-      @connection = Cql::Client.connect(host: @host, port: @port)
+      @connection = Cql::Client.connect(host: @host)
       @connection.use(@database)
-      @connection
-      @write_statement||= @connection.prepare("INSERT INTO #{@table}(server,metric, time, v) VALUES
+
+      @write_statement = @connection.prepare("INSERT INTO #{@table}(server,metric, time, v) VALUES
           (?, ?, ?, ?) USING TTL 1209600") # two weeks
     end
     def connection
@@ -98,6 +98,7 @@ module Metriks::Reporter
           ]
         end
       end
+      sleep 2
       close_connection
 
     end
@@ -106,15 +107,13 @@ module Metriks::Reporter
     end
     def send_metric(compound_name, metric, keys, snapshot_keys = [])
       keys.each do |key|
-        execute_preparated_statement ['#{@source}','#{compound_name}','#{Time.now.to_i}',#{metric.send(key)})"
-        connection.execute command
+        execute_prepared_statement [@source,compound_name,"#{Time.now.to_i}",metric.send(key)]
       end
     end
     def execute_prepared_statement array
-      log.debug "I plan to update cassandra metrics with:\n#{array.inspect}"
       future = write_statement.async.execute(*array)
       future.on_failure do |error|
-        log.error "Writing prepared statement error: '#{error.message}' while executing: #{error.cql}"
+        raise error
       end
     end
     def write_statement
