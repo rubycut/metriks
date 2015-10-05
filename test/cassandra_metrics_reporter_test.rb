@@ -29,14 +29,14 @@ class CassandraReporterTest < Test::Unit::TestCase
     cassandra_connection = mock
     @reporter.stubs(:connection).returns(cassandra_connection)
     @reporter.stubs(:open_connection).returns(nil)
-    @reporter.connection.expects(:execute).at_least_once
     @reporter.connection.expects(:close)
     expected = "INSERT INTO table (server,metric,time,v) VALUES ('server','counter.testing','#{Time.now.utc.strftime("%Y-%m-%d %H:%M:%S+0000")}',1)"
-    @reporter.connection.expects(:execute).with(expected)
-    #@reporter.connection.expects(:puts).with("put gauge.testing #{Time.now.to_i} 123")
+    @reporter.expects(:execute_prepared_statement).at_least_once
+    @reporter.expects(:execute_prepared_statement).with(['server', 'meter.testing.one_minute_rate', "#{Time.now.to_i}", 0])
+    @reporter.expects(:execute_prepared_statement).with(["server","timer.testing.max","#{Time.now.to_i}",1.5])
     @reporter.write
   end
-  def test_reset
+  def test_counter_reset
 
     counter = @registry.counter('counter.testing')
     counter.increment
@@ -44,9 +44,9 @@ class CassandraReporterTest < Test::Unit::TestCase
     assert_equal @registry.counter('counter.testing').count, 1
     cassandra_connection = mock
     @reporter.stubs(:connection).returns(cassandra_connection)
-    @reporter.connection.expects(:execute).at_least_once
     @reporter.stubs(:open_connection).returns(nil)
     @reporter.connection.expects(:close)
+    @reporter.expects(:execute_prepared_statement).with(['server', 'counter.testing.count', "#{Time.now.to_i}", 1])
     @reporter.write
     assert_equal @registry.counter('counter.testing').count, 0
   end

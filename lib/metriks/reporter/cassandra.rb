@@ -107,7 +107,7 @@ module Metriks::Reporter
     end
     def send_metric(compound_name, metric, keys, snapshot_keys = [])
       keys.each do |key|
-        execute_prepared_statement [@source,compound_name,"#{Time.now.to_i}",metric.send(key)]
+        execute_prepared_statement [@source,"#{compound_name}.#{key}","#{Time.now.to_i}",metric.send(key)]
       end
     end
     def execute_prepared_statement array
