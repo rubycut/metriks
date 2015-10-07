@@ -10,7 +10,11 @@ module Metriks
     def initialize
       @count = Atomic.new(0)
     end
-
+    # shortcut for onliners
+    def activate_reset_on_submit
+      @reset_on_submit = true
+      self
+    end
     # Public: Reset the counter back to 0
     #
     # Returns nothing.
