@@ -90,6 +90,7 @@ module Metriks::Reporter
           ], [
             :median, :get_95th_percentile
           ]
+          metric.clear if metric.reset_on_submit
         when Metriks::Histogram
           send_metric name, metric, [
             :count, :min, :max, :mean, :stddev

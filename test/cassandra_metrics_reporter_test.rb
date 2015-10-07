@@ -50,4 +50,20 @@ class CassandraReporterTest < Test::Unit::TestCase
     @reporter.write
     assert_equal @registry.counter('counter.testing').count, 0
   end
+  def test_timer_reset
+
+    timer = @registry.timer('timer.testing')
+    timer.update(10)
+    timer.reset_on_submit = true
+    assert_equal @registry.timer('timer.testing').max, 10
+    cassandra_connection = mock
+    @reporter.stubs(:connection).returns(cassandra_connection)
+    @reporter.stubs(:open_connection).returns(nil)
+    @reporter.connection.expects(:close)
+    @reporter.expects(:execute_prepared_statement).at_least_once
+    @reporter.expects(:execute_prepared_statement).with(['server', 'timer.testing.max', "#{Time.now.to_i}", 10])
+    @reporter.write
+    assert_equal @registry.timer('timer.testing').max, 0
+  end
+
 end

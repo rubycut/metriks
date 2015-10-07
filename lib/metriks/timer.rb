@@ -6,10 +6,17 @@ require 'metriks/histogram'
 
 module Metriks
   class Timer
+    # I want to get mean value for last minute only not for eternity
+    attr_accessor :reset_on_submit
     class Context
       def initialize(timer)
         @timer    = timer
         @interval = Hitimes::Interval.now
+      end
+      # shortcut for onliners
+      def activate_reset_on_submit
+        @reset_on_submit = true
+        self
       end
 
       def restart
