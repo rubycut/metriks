@@ -13,11 +13,6 @@ module Metriks
         @timer    = timer
         @interval = Hitimes::Interval.now
       end
-      # shortcut for onliners
-      def activate_reset_on_submit
-        @reset_on_submit = true
-        self
-      end
 
       def restart
         @interval = Hitimes::Interval.now
@@ -32,6 +27,11 @@ module Metriks
     def initialize(histogram = Metriks::Histogram.new_exponentially_decaying)
       @meter     = Metriks::Meter.new
       @histogram = histogram
+    end
+    # shortcut for onliners
+    def activate_reset_on_submit
+      @reset_on_submit = true
+      self
     end
 
     def clear

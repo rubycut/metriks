@@ -54,7 +54,7 @@ class CassandraReporterTest < Test::Unit::TestCase
 
     timer = @registry.timer('timer.testing')
     timer.update(10)
-    timer.reset_on_submit = true
+    timer.activate_reset_on_submit
     assert_equal @registry.timer('timer.testing').max, 10
     cassandra_connection = mock
     @reporter.stubs(:connection).returns(cassandra_connection)
